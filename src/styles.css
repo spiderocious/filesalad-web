@@ -4,8 +4,9 @@
 
 /* Design tokens, palette, and typography come from file-salad-ui-lib's
    stylesheet (imported in main.tsx) — the --fs-* custom properties are the
-   single source of truth. This file only sets app-shell basics, referencing
-   those tokens. To re-theme, override --fs-* vars here after the lib import. */
+   single source of truth. This file sets app-shell basics + the brand backdrop,
+   referencing those tokens. To re-theme, override --fs-* vars here after the
+   lib import. */
 html,
 body,
 #root {
@@ -14,7 +15,21 @@ body,
 
 body {
   margin: 0;
-  background: var(--fs-bg);
   color: var(--fs-text);
   font-family: var(--fs-font-sans);
+}
+
+/* Full-bleed brand gradient backdrop — a multi-stop radial built from the
+   FileSalad accent greens and warm/teal tints (cf. colors.md), echoing the
+   Smash full-screen feel but on-brand. The centered drop area floats on it. */
+.fs-backdrop {
+  position: relative;
+  min-height: 100%;
+  background-color: var(--fs-accent);
+  background-image:
+    radial-gradient(at 18% 22%, #22c55e 0px, transparent 55%),
+    radial-gradient(at 82% 18%, #0ea5a0 0px, transparent 50%),
+    radial-gradient(at 75% 82%, #15803d 0px, transparent 55%),
+    radial-gradient(at 25% 85%, #4ade80 0px, transparent 50%),
+    radial-gradient(at 50% 50%, #16a34a 0px, transparent 70%);
 }
