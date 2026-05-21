@@ -1,6 +1,6 @@
 // Centralised env access. Read import.meta.env here and nowhere else, so a
 // missing/renamed variable surfaces in one place.
-const DEFAULT_API_BASE_URL = 'http://localhost:8080';
+const DEFAULT_API_BASE_URL = 'http://localhost:8096';
 
 export const ENV = {
   // The backend base URL. Falls back to local dev. The API client appends
