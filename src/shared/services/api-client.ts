@@ -13,7 +13,11 @@ interface RequestOptions {
   readonly fingerprint?: boolean;
 }
 
-async function request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<T> {
+async function request<T>(
+  method: HttpMethod,
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (options.fingerprint) headers['X-Fingerprint'] = getFingerprint();
 

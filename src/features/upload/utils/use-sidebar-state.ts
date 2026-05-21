@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useHistory } from '../providers/history-provider.tsx';
 
@@ -11,7 +11,8 @@ interface SidebarState {
 
 // History sidebar visibility. Default state follows whether the user has ever
 // uploaded: closed for a first-time visitor, open if there's history — decided
-// once, after the initial IndexedDB read resolves, then user-controlled.
+// once, after the initial IndexedDB read resolves. Any explicit user action
+// also "settles" the seed so a late-resolving read can't clobber their choice.
 export function useSidebarState(): SidebarState {
   const { entries, isLoaded } = useHistory();
   const [isOpen, setIsOpen] = useState(false);
@@ -24,10 +25,18 @@ export function useSidebarState(): SidebarState {
     }
   }, [isLoaded, seeded, entries.length]);
 
-  return {
-    isOpen,
-    open: () => setIsOpen(true),
-    close: () => setIsOpen(false),
-    toggle: () => setIsOpen((v) => !v),
-  };
+  const open = useCallback(() => {
+    setSeeded(true);
+    setIsOpen(true);
+  }, []);
+  const close = useCallback(() => {
+    setSeeded(true);
+    setIsOpen(false);
+  }, []);
+  const toggle = useCallback(() => {
+    setSeeded(true);
+    setIsOpen((v) => !v);
+  }, []);
+
+  return { isOpen, open, close, toggle };
 }

@@ -1,26 +1,47 @@
-import { DropZone, ToastHost, UsageMeter, toast } from 'file-salad-ui-lib';
+import { ToastHost } from 'file-salad-ui-lib';
+import { Show } from 'meemaw';
 
-// The no-signup one-pager shell, built from the FileSalad UI library so it
-// inherits the shared tokens, color, and typography. The upload flow itself
-// (fingerprint, presigned PUT, IndexedDB count + history, click-to-copy) is a
-// separate spec'd task — onFiles is a placeholder for now.
-const MONTHLY_CAP = 50;
+import { HistoryProvider } from '../providers/history-provider.tsx';
+import { useSidebarState } from '../utils/use-sidebar-state.ts';
+import { DropArea } from './parts/drop-area/drop-area.tsx';
+import { HistorySidebar } from './parts/history-sidebar/history-sidebar.tsx';
+import { MobileHistory } from './parts/mobile-history/mobile-history.tsx';
+import { TopBar } from './parts/top-bar/top-bar.tsx';
 
+// Composition root. The provider owns local history; the screen content reads
+// like a table of contents — backdrop, top bar, centered drop area, and the
+// closeable history sidebar (bottom strip on mobile).
 export function UploadScreen() {
   return (
-    <main className="mx-auto flex min-h-full max-w-xl flex-col justify-center gap-6 px-6 py-16">
-      <header className="text-center">
-        <h1 className="fs-font-sans text-3xl font-semibold text-[var(--fs-text)]">FileSalad</h1>
-        <p className="mt-2 text-sm text-[var(--fs-text-secondary)]">
-          Drop a file, get a public link. No signup.
-        </p>
-      </header>
+    <HistoryProvider>
+      <UploadScreenContent />
+    </HistoryProvider>
+  );
+}
 
-      <DropZone onFiles={() => toast.info('Upload is coming soon')} />
+function UploadScreenContent() {
+  const sidebar = useSidebarState();
 
-      <UsageMeter used={0} total={MONTHLY_CAP} label="Uploads this month" />
+  return (
+    <div className="fs-backdrop flex h-screen flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <TopBar isSidebarOpen={sidebar.isOpen} onToggleSidebar={sidebar.toggle} />
+          <main className="flex flex-1 items-center justify-center px-6 pb-10">
+            <DropArea />
+          </main>
+        </div>
 
-      <ToastHost />
-    </main>
+        {/* Right sidebar on desktop; hidden on mobile (history goes to bottom). */}
+        <Show when={sidebar.isOpen}>
+          <div className="hidden md:block">
+            <HistorySidebar onClose={sidebar.close} />
+          </div>
+        </Show>
+      </div>
+
+      <MobileHistory />
+      <ToastHost position="bottom" />
+    </div>
   );
 }

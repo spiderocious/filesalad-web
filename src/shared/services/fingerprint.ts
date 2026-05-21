@@ -23,13 +23,21 @@ function hash(input: string): string {
   return (h >>> 0).toString(16).padStart(8, '0');
 }
 
+// localStorage may be unavailable (private mode, blocked, non-browser). Fall
+// back to an in-memory seed so a fingerprint is always produced.
+let memorySeed: string | null = null;
+
 function persistentSeed(): string {
-  let seed = localStorage.getItem(STORAGE_KEY);
-  if (!seed) {
-    seed = randomId();
-    localStorage.setItem(STORAGE_KEY, seed);
+  try {
+    const existing = window.localStorage.getItem(STORAGE_KEY);
+    if (existing) return existing;
+    const seed = randomId();
+    window.localStorage.setItem(STORAGE_KEY, seed);
+    return seed;
+  } catch {
+    if (!memorySeed) memorySeed = randomId();
+    return memorySeed;
   }
-  return seed;
 }
 
 export function getFingerprint(): string {
