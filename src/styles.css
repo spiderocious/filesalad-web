@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens, palette, and typography come from file-salad-ui-lib's
+   stylesheet (imported in main.tsx) — the --fs-* custom properties are the
+   single source of truth. This file only sets app-shell basics, referencing
+   those tokens. To re-theme, override --fs-* vars here after the lib import. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fs-bg);
+  color: var(--fs-text);
+  font-family: var(--fs-font-sans);
+}
