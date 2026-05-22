@@ -27,9 +27,11 @@ describe('useSidebarState default-open', () => {
     await appendHistory({
       id: 'up_1',
       filename: 'a.png',
-      url: 'https://x/a',
+      key: 'f_a.png',
       size: 10,
       timestamp: '2026-05-21T10:00:00.000Z',
+      cachedUrl: 'https://x/a',
+      cachedExpiresAt: '2026-05-22T14:00:00Z',
     });
 
     const { result } = renderHook(() => useSidebarState(), { wrapper });

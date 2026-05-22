@@ -1,10 +1,12 @@
-import { UploadHistoryItem, UsageMeter, toast } from 'file-salad-ui-lib';
+import { UsageMeter } from 'file-salad-ui-lib';
 import { Repeat, Show } from 'meemaw';
 
 import { Clock, X } from '@icons';
 
 import { useHistory } from '../../../providers/history-provider.tsx';
 import { useWebUsage } from '../../../api/use-web-usage.ts';
+import { HistoryRow } from '../history/history-row.tsx';
+import { HistorySettings } from '../history/history-settings.tsx';
 
 interface HistorySidebarProps {
   readonly onClose: () => void;
@@ -16,7 +18,7 @@ const FALLBACK_CAP = 50;
 // state. Rows + usage come from the FileSalad UI library. On mobile the history
 // lives at the bottom instead (mobile-history) — this panel is hidden there.
 export function HistorySidebar({ onClose }: HistorySidebarProps) {
-  const { entries } = useHistory();
+  const { entries, enabled } = useHistory();
   const usage = useWebUsage();
 
   return (
@@ -36,30 +38,31 @@ export function HistorySidebar({ onClose }: HistorySidebarProps) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-3">
+      <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
+        <HistorySettings />
+
         <Show
-          when={entries.length > 0}
+          when={enabled}
           fallback={
-            <p className="px-2 py-8 text-center text-sm text-[var(--fs-text-tertiary)]">
-              No uploads yet. Your links will show up here.
+            <p className="px-2 py-6 text-center text-sm text-[var(--fs-text-tertiary)]">
+              History is off. Turn it on above to keep a list of your links on this device.
             </p>
           }
         >
-          <ul className="flex flex-col gap-2">
-            <Repeat each={[...entries]}>
-              {(entry) => (
-                <li key={entry.id}>
-                  <UploadHistoryItem
-                    filename={entry.filename}
-                    url={entry.url}
-                    size={entry.size}
-                    timestamp={entry.timestamp}
-                    onCopy={() => toast.success('Link copied')}
-                  />
-                </li>
-              )}
-            </Repeat>
-          </ul>
+          <Show
+            when={entries.length > 0}
+            fallback={
+              <p className="px-2 py-6 text-center text-sm text-[var(--fs-text-tertiary)]">
+                No uploads yet. Your links will show up here.
+              </p>
+            }
+          >
+            <ul className="flex flex-col gap-2">
+              <Repeat each={[...entries]}>
+                {(entry) => <HistoryRow key={entry.id} entry={entry} />}
+              </Repeat>
+            </ul>
+          </Show>
         </Show>
       </div>
 

@@ -7,4 +7,8 @@ export const EP = {
     USAGE: '/web/usage',
     DOWNLOAD: (id: string) => `/web/uploads/${id}/download`,
   },
+  SHARE: {
+    CREATE: '/share',
+    REDEEM: (code: string) => `/share/${code}`,
+  },
 } as const;

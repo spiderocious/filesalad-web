@@ -21,12 +21,23 @@ export const handlers = [
           key: 'f_test.png',
           upload_url: STORAGE_URL,
           public_url: 'https://files.example.com/f_test.png',
-          expires_in: 900,
+          public_url_expires_at: '2099-01-01T00:00:00Z',
           remaining: 48,
         },
       },
       { status: 201 },
     ),
+  ),
+
+  // Fresh download URL (used when a cached URL is expired).
+  http.get(`${base}${EP.WEB.DOWNLOAD('up_test')}`, () =>
+    HttpResponse.json({
+      data: {
+        download_url: 'https://files.example.com/fresh.png?sig=new',
+        expires_in: 7200,
+        expires_at: '2099-01-01T02:00:00Z',
+      },
+    }),
   ),
 
   http.put(STORAGE_URL, () => new HttpResponse(null, { status: 200 })),

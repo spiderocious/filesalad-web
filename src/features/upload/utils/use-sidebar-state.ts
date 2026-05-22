@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useHistory } from '../providers/history-provider.tsx';
 
@@ -11,30 +11,31 @@ interface SidebarState {
 
 // History sidebar visibility. Default state follows whether the user has ever
 // uploaded: closed for a first-time visitor, open if there's history — decided
-// once, after the initial IndexedDB read resolves. Any explicit user action
-// also "settles" the seed so a late-resolving read can't clobber their choice.
+// once, after the initial IndexedDB read resolves. A `settled` ref guards the
+// seed so an explicit user action (or a late-resolving read) can never clobber
+// the user's choice — checked synchronously, so there's no effect/click race.
 export function useSidebarState(): SidebarState {
   const { entries, isLoaded } = useHistory();
   const [isOpen, setIsOpen] = useState(false);
-  const [seeded, setSeeded] = useState(false);
+  const settled = useRef(false);
 
   useEffect(() => {
-    if (isLoaded && !seeded) {
+    if (isLoaded && !settled.current) {
+      settled.current = true;
       setIsOpen(entries.length > 0);
-      setSeeded(true);
     }
-  }, [isLoaded, seeded, entries.length]);
+  }, [isLoaded, entries.length]);
 
   const open = useCallback(() => {
-    setSeeded(true);
+    settled.current = true;
     setIsOpen(true);
   }, []);
   const close = useCallback(() => {
-    setSeeded(true);
+    settled.current = true;
     setIsOpen(false);
   }, []);
   const toggle = useCallback(() => {
-    setSeeded(true);
+    settled.current = true;
     setIsOpen((v) => !v);
   }, []);
 

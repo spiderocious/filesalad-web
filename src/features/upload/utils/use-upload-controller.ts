@@ -51,9 +51,13 @@ export function useUploadController(): UploadController {
           addEntry({
             id: result.uploadId,
             filename: result.filename,
-            url: result.publicUrl,
+            key: result.key,
             size: result.size,
             timestamp: new Date().toISOString(),
+            // The presigned public URL is a cache; we store its expiry so a
+            // later copy can tell whether to refetch a fresh one.
+            cachedUrl: result.publicUrl,
+            cachedExpiresAt: result.publicUrlExpiresAt,
           });
           setState({ status: 'success', result });
         },

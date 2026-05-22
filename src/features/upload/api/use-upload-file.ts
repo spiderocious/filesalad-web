@@ -31,7 +31,11 @@ export function useUploadFile() {
 
       return {
         uploadId: presign.upload_id,
+        key: presign.key,
         publicUrl: presign.public_url,
+        // Older backends may omit the absolute expiry; '' → treated as expired,
+        // so the first copy refetches a fresh URL (safe default).
+        publicUrlExpiresAt: presign.public_url_expires_at ?? '',
         filename: file.name,
         size: file.size,
         remaining: presign.remaining,

@@ -49,3 +49,18 @@ export async function appendHistory(entry: HistoryEntry): Promise<void> {
     db.close();
   }
 }
+
+// Wipe all stored history (when the user turns history off or clears it).
+export async function clearAllHistory(): Promise<void> {
+  const db = await openDb();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error ?? new Error('IndexedDB clear failed'));
+    });
+  } finally {
+    db.close();
+  }
+}

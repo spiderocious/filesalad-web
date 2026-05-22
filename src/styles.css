@@ -140,3 +140,152 @@ body {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Drawer: bottom-up overlay with a blurred/dimmed backdrop. The history list
+   raises through this — a bottom sheet on mobile, and the history surface on
+   desktop too.
+--------------------------------------------------------------------------- */
+.fs-drawer-root {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.fs-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(26, 36, 32, 0.4);
+  backdrop-filter: blur(3px);
+  animation: fs-fade-in 180ms ease-out;
+}
+
+.fs-drawer-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  margin: 0 auto;
+  max-height: 92%;
+  display: flex;
+  flex-direction: column;
+  background: var(--fs-bg);
+  border-top-left-radius: 1.25rem;
+  border-top-right-radius: 1.25rem;
+  box-shadow: 0 -12px 40px -12px rgba(26, 36, 32, 0.45);
+  animation: fs-slide-up 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.fs-drawer-grip {
+  width: 2.5rem;
+  height: 0.3rem;
+  border-radius: 9999px;
+  background: var(--fs-border-strong);
+  margin: 0.7rem auto 0.3rem;
+  flex-shrink: 0;
+}
+
+.fs-drawer-body {
+  overflow-y: auto;
+  padding: 0.25rem 1.25rem 1.5rem;
+}
+
+@keyframes fs-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fs-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fs-drawer-backdrop,
+  .fs-drawer-sheet {
+    animation: none;
+  }
+}
+
+/* The check that pops in when a history link is copied. */
+.fs-copy-pop {
+  animation: fs-copy-pop 240ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@keyframes fs-copy-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fs-copy-pop {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   OtpInput: per-cell code field for redeeming a 7-char share code.
+   `.fs-otp-pop` animates a freshly entered character in with a small
+   scale/opacity pop; `.fs-otp-active` gives the next-empty cell a gentle
+   blinking-caret feel so it reads as "type here".
+--------------------------------------------------------------------------- */
+.fs-otp-pop {
+  animation: fs-otp-pop 150ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@keyframes fs-otp-pop {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.2;
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.fs-otp-active {
+  animation: fs-otp-caret 1.1s ease-in-out infinite;
+}
+
+@keyframes fs-otp-caret {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--fs-accent-subtle);
+  }
+  50% {
+    box-shadow: 0 0 0 3px var(--fs-accent-subtle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fs-otp-pop,
+  .fs-otp-active {
+    animation: none;
+  }
+}

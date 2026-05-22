@@ -7,6 +7,7 @@ export {
   Check,
   Clock,
   X,
+  ExternalLink as LinkIcon,
   PanelRightClose,
   PanelRightOpen,
   AlertCircle,

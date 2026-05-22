@@ -1,22 +1,55 @@
-import { CopyableLink, DropZone, toast } from 'file-salad-ui-lib';
+import { DropZone } from 'file-salad-ui-lib';
 import { Show } from 'meemaw';
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { AlertCircle, Loader2, Salad, UploadCloud } from '@icons';
+import { ModeTabs } from '@shared/ui/mode-tabs/mode-tabs.tsx';
 
 import { usePasteUpload } from '../../../utils/use-paste-upload.ts';
 import { useUploadController } from '../../../utils/use-upload-controller.ts';
+import { CodeRedeem } from './code-redeem.tsx';
+import { OptInNudge } from './opt-in-nudge.tsx';
+import { ResultPanel } from './result-panel.tsx';
+import { ShareButton } from './share-button.tsx';
 
-// The centered floating target, styled after the screenshot's logo-in-a-circle.
-// Drop / click come from the lib DropZone; ⌘V paste is wired globally. The view
-// switches on the upload state machine.
+type Mode = 'upload' | 'code';
+
+const MODE_OPTIONS = [
+  { value: 'upload' as const, label: 'Upload' },
+  { value: 'code' as const, label: 'Have a code' },
+];
+
+// The centered card is dual-mode: Upload (drop / paste / click) or Code (redeem
+// a share code). Tabs sit on top of the card; Upload is the default. A /s/:code
+// deep link opens straight into the Code tab with the code prefilled.
 export function DropArea() {
+  const { code } = useParams<{ code?: string }>();
+  const [mode, setMode] = useState<Mode>(code ? 'code' : 'upload');
+
+  return (
+    <div className="flex w-full max-w-md flex-col items-center gap-3">
+      <ModeTabs<Mode>
+        value={mode}
+        options={MODE_OPTIONS}
+        onChange={setMode}
+        aria-label="Upload or redeem a code"
+      />
+      <Show when={mode === 'upload'} fallback={<CodeRedeemCard initialCode={code ?? ''} />}>
+        <UploadCard />
+      </Show>
+    </div>
+  );
+}
+
+function UploadCard() {
   const { state, upload, reset } = useUploadController();
   const isUploading = state.status === 'uploading';
 
   usePasteUpload(upload, !isUploading);
 
   return (
-    <div className="flex w-full max-w-md flex-col items-center gap-5">
+    <div className="flex w-full flex-col items-center gap-4">
       <div className={`fs-target ${isUploading ? 'is-busy' : ''}`}>
         <DropZone
           onFiles={(files) => {
@@ -49,24 +82,18 @@ export function DropArea() {
       </div>
 
       <Show when={state.status === 'success'}>
-        <div className="w-full rounded-xl bg-white/95 p-4 shadow-lg">
-          <p className="mb-2 text-center text-sm font-medium text-[var(--fs-text)]">
-            Your link is ready
-          </p>
-          {state.status === 'success' && (
-            <CopyableLink
+        {state.status === 'success' ? (
+          <div className="flex w-full flex-col gap-3">
+            <ResultPanel
+              title="Your link is ready"
               url={state.result.publicUrl}
-              onCopy={() => toast.success('Link copied')}
+              resetLabel="Send another file"
+              onReset={reset}
             />
-          )}
-          <button
-            type="button"
-            onClick={reset}
-            className="mt-3 w-full text-center text-xs font-medium text-[var(--fs-accent)] hover:underline"
-          >
-            Send another file
-          </button>
-        </div>
+            <ShareButton uploadId={state.result.uploadId} />
+            <OptInNudge />
+          </div>
+        ) : null}
       </Show>
 
       {/* Inline error, not a toast — the user needs to read and act on it. */}
@@ -79,6 +106,16 @@ export function DropArea() {
           {state.status === 'error' ? state.message : null}
         </p>
       </Show>
+    </div>
+  );
+}
+
+function CodeRedeemCard({ initialCode }: { readonly initialCode: string }) {
+  return (
+    <div className="fs-target w-full">
+      <div className="fs-dropzone-circle">
+        <CodeRedeem initialCode={initialCode} />
+      </div>
     </div>
   );
 }

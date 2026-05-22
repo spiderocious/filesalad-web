@@ -5,7 +5,15 @@ import { appendHistory, readAllHistory } from '../history-db.ts';
 import type { HistoryEntry } from '../../types/history.ts';
 
 function entry(id: string, timestamp: string): HistoryEntry {
-  return { id, filename: `${id}.png`, url: `https://x/${id}`, size: 10, timestamp };
+  return {
+    id,
+    filename: `${id}.png`,
+    key: `f_${id}.png`,
+    size: 10,
+    timestamp,
+    cachedUrl: `https://x/${id}`,
+    cachedExpiresAt: '2026-05-22T14:00:00Z',
+  };
 }
 
 describe('history-db', () => {
