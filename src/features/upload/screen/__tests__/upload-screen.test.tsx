@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { IDBFactory } from 'fake-indexeddb';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { createTestWrapper } from '@shared/test-utils/create-test-wrapper.tsx';
@@ -8,7 +9,14 @@ import { createTestWrapper } from '@shared/test-utils/create-test-wrapper.tsx';
 import { UploadScreen } from '../upload-screen.tsx';
 
 function renderScreen() {
-  return render(<UploadScreen />, { wrapper: createTestWrapper() });
+  // The screen uses `<Link>` for the privacy footer and `useParams` for the
+  // /s/:code deep link, so we need a router context.
+  return render(
+    <MemoryRouter>
+      <UploadScreen />
+    </MemoryRouter>,
+    { wrapper: createTestWrapper() },
+  );
 }
 
 // Desktop history is the right sidebar (toggled from the top bar). The top-bar

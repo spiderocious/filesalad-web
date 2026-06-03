@@ -1,9 +1,15 @@
 // History is OFF by default — FileSalad's promise is "we don't keep your
-// stuff", so we don't even keep a local list unless the user opts in. The
-// preference + "have we shown the first-run nudge" flag live in localStorage
-// (a UI preference, not file data). Guarded so a blocked localStorage degrades
-// to "off, prompt not seen" rather than throwing.
+// stuff", so we don't even keep a local list unless the user opts in.
+//
+// Storage shape (per the privacy posture): when ON we write a value to the
+// enabled key; when OFF we REMOVE the key entirely, so a private/audited
+// browser shows no FileSalad preference at all. The first-run nudge flag is
+// independent so we don't re-ask after the user has already decided.
+//
+// Guarded so a blocked localStorage degrades to "off, prompt not seen" rather
+// than throwing.
 const ENABLED_KEY = 'fs_history_enabled';
+const ENABLED_ON_VALUE = 'on';
 const PROMPT_SEEN_KEY = 'fs_history_prompt_seen';
 
 function read(key: string): string | null {
@@ -22,18 +28,27 @@ function write(key: string, value: string): void {
   }
 }
 
+function remove(key: string): void {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Best-effort.
+  }
+}
+
 export function readHistoryEnabled(): boolean {
-  return read(ENABLED_KEY) === 'true';
+  return read(ENABLED_KEY) === ENABLED_ON_VALUE;
 }
 
 export function writeHistoryEnabled(enabled: boolean): void {
-  write(ENABLED_KEY, String(enabled));
+  if (enabled) write(ENABLED_KEY, ENABLED_ON_VALUE);
+  else remove(ENABLED_KEY);
 }
 
 // The first-run nudge shows once, after the first upload, only if the user
 // hasn't already chosen (so we never nag).
 export function hasSeenHistoryPrompt(): boolean {
-  return read(PROMPT_SEEN_KEY) === 'true' || read(ENABLED_KEY) !== null;
+  return read(PROMPT_SEEN_KEY) === 'true' || read(ENABLED_KEY) === ENABLED_ON_VALUE;
 }
 
 export function markHistoryPromptSeen(): void {

@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 
 import { HistoryProvider } from '../../providers/history-provider.tsx';
 import { appendHistory } from '../history-db.ts';
+import { writeHistoryEnabled } from '../history-preference.ts';
 import { useSidebarState } from '../use-sidebar-state.ts';
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -14,6 +15,8 @@ function wrapper({ children }: { children: ReactNode }) {
 describe('useSidebarState default-open', () => {
   beforeEach(() => {
     indexedDB = new IDBFactory();
+    // History is off by default — clear any leftover preference from prior tests.
+    writeHistoryEnabled(false);
   });
 
   it('is closed by default for a first-time visitor (no history)', async () => {
@@ -23,7 +26,10 @@ describe('useSidebarState default-open', () => {
     expect(result.current.isOpen).toBe(false);
   });
 
-  it('is open by default when history exists', async () => {
+  it('is open by default when history is on and has entries', async () => {
+    // History is opt-in (off by default), so this scenario only applies after
+    // the user has turned it on.
+    writeHistoryEnabled(true);
     await appendHistory({
       id: 'up_1',
       filename: 'a.png',

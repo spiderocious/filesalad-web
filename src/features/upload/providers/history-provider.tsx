@@ -65,11 +65,11 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
     markHistoryPromptSeen();
     setPromptSeen(true);
     setEnabledState(value);
-    // Turning history OFF wipes anything stored — leaving nothing behind.
-    if (!value) {
-      setEntries([]);
-      void clearAllHistory();
-    }
+    // Either flip wipes existing history — turning OFF leaves nothing behind,
+    // and turning ON starts the new opt-in session clean (no carryover from a
+    // previous toggle cycle that briefly persisted rows).
+    setEntries([]);
+    void clearAllHistory();
   }, []);
 
   const dismissPrompt = useCallback(() => {

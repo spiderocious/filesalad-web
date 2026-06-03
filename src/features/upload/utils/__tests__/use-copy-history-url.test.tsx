@@ -9,6 +9,7 @@ import { createTestWrapper } from '@shared/test-utils/create-test-wrapper.tsx';
 import { server } from '@shared/test-utils/server.ts';
 
 import { HistoryProvider, useHistory } from '../../providers/history-provider.tsx';
+import { writeHistoryEnabled } from '../history-preference.ts';
 import { useCopyHistoryUrl } from '../use-copy-history-url.ts';
 import type { HistoryEntry } from '../../types/history.ts';
 
@@ -38,6 +39,9 @@ beforeEach(() => {
   Object.assign(navigator, {
     clipboard: { writeText: vi.fn(async (text: string) => { lastCopied = text; }) },
   });
+  // The history feature is opt-in (off by default); the copy/refetch path only
+  // applies once a user has turned it on, so seed it on for these scenarios.
+  writeHistoryEnabled(true);
 });
 
 function wrapper({ children }: { children: ReactNode }) {

@@ -1,13 +1,17 @@
 import { DropZone } from 'file-salad-ui-lib';
 import { Show } from 'meemaw';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { AlertCircle, Loader2, Salad, UploadCloud } from '@icons';
 import { ModeTabs } from '@shared/ui/mode-tabs/mode-tabs.tsx';
 
+import { usePageDrop } from '../../../utils/use-page-drop.ts';
 import { usePasteUpload } from '../../../utils/use-paste-upload.ts';
-import { useUploadController } from '../../../utils/use-upload-controller.ts';
+import {
+  useUploadController,
+  type UploadState,
+} from '../../../utils/use-upload-controller.ts';
 import { CodeRedeem } from './code-redeem.tsx';
 import { OptInNudge } from './opt-in-nudge.tsx';
 import { ResultPanel } from './result-panel.tsx';
@@ -21,11 +25,29 @@ const MODE_OPTIONS = [
 ];
 
 // The centered card is dual-mode: Upload (drop / paste / click) or Code (redeem
-// a share code). Tabs sit on top of the card; Upload is the default. A /s/:code
-// deep link opens straight into the Code tab with the code prefilled.
+// a share code). Tabs sit on top of the card; Upload is the default. The drop
+// target spans the whole page — drop anywhere outside the card too. Paste does
+// the same. Either action also flips back to the Upload tab so the user sees
+// the upload progress (instead of staring at the Code view).
 export function DropArea() {
   const { code } = useParams<{ code?: string }>();
   const [mode, setMode] = useState<Mode>(code ? 'code' : 'upload');
+
+  const { state, upload, reset } = useUploadController();
+  const isUploading = state.status === 'uploading';
+
+  const onFileFromAnywhere = useCallback(
+    (file: File) => {
+      setMode('upload');
+      upload(file);
+    },
+    [upload],
+  );
+
+  // Page-wide drop + ⌘V paste — work anywhere on the canvas, not just on the
+  // card. Both are disabled while an upload is in flight.
+  const { isDraggingFile } = usePageDrop(onFileFromAnywhere, !isUploading);
+  usePasteUpload(onFileFromAnywhere, !isUploading);
 
   return (
     <div className="flex w-full max-w-md flex-col items-center gap-3">
@@ -35,26 +57,41 @@ export function DropArea() {
         onChange={setMode}
         aria-label="Upload or redeem a code"
       />
-      <Show when={mode === 'upload'} fallback={<CodeRedeemCard initialCode={code ?? ''} />}>
-        <UploadCard />
+      <Show
+        when={mode === 'upload'}
+        fallback={<CodeRedeemCard initialCode={code ?? ''} />}
+      >
+        <UploadCard
+          state={state}
+          isDraggingOnPage={isDraggingFile}
+          onPickFile={onFileFromAnywhere}
+          onReset={reset}
+        />
       </Show>
     </div>
   );
 }
 
-function UploadCard() {
-  const { state, upload, reset } = useUploadController();
-  const isUploading = state.status === 'uploading';
+interface UploadCardProps {
+  readonly state: UploadState;
+  readonly isDraggingOnPage: boolean;
+  readonly onPickFile: (file: File) => void;
+  readonly onReset: () => void;
+}
 
-  usePasteUpload(upload, !isUploading);
+function UploadCard({ state, isDraggingOnPage, onPickFile, onReset }: UploadCardProps) {
+  const isUploading = state.status === 'uploading';
+  // Light up the card while a file is being dragged anywhere on the page — even
+  // if the cursor isn't over the card itself.
+  const dragClass = isDraggingOnPage ? 'fs-target--drag-active' : '';
 
   return (
     <div className="flex w-full flex-col items-center gap-4">
-      <div className={`fs-target ${isUploading ? 'is-busy' : ''}`}>
+      <div className={`fs-target ${dragClass} ${isUploading ? 'is-busy' : ''}`}>
         <DropZone
           onFiles={(files) => {
             const file = files[0];
-            if (file) upload(file);
+            if (file) onPickFile(file);
           }}
           disabled={isUploading}
           aria-label="Drop, paste, or click to upload a file"
@@ -70,7 +107,11 @@ function UploadCard() {
               </span>
             </Show>
             <span className="text-sm font-medium text-[var(--fs-text)]">
-              {isUploading ? 'Uploading…' : 'Drop, paste, or click'}
+              {isUploading
+                ? 'Uploading…'
+                : isDraggingOnPage
+                  ? 'Drop to upload'
+                  : 'Drop, paste, or click'}
             </span>
             <Show when={!isUploading}>
               <span className="inline-flex items-center gap-1 text-xs text-[var(--fs-text-secondary)]">
@@ -88,7 +129,7 @@ function UploadCard() {
               title="Your link is ready"
               url={state.result.publicUrl}
               resetLabel="Send another file"
-              onReset={reset}
+              onReset={onReset}
             />
             <ShareButton uploadId={state.result.uploadId} />
             <OptInNudge />

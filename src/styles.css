@@ -84,8 +84,8 @@ body {
 .fs-target::after {
   content: '';
   position: absolute;
-  width: 18rem;
-  height: 12rem;
+  width: 24rem;
+  height: 16rem;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.4);
   z-index: 0;
@@ -116,8 +116,8 @@ body {
 .fs-target .fs-dropzone-circle {
   position: relative;
   z-index: 1;
-  width: 18rem;
-  height: 12rem;
+  width: 24rem;
+  height: 16rem;
   min-height: 0;
   display: flex;
   align-items: center;
@@ -134,10 +134,32 @@ body {
   animation: none;
 }
 
+/* While a file is being dragged anywhere on the page (drop target = the whole
+   canvas), light the card up so the user knows where it'll land. The card stays
+   in place — it's the affordance, not the only hit-target. */
+.fs-target.fs-target--drag-active .fs-dropzone-circle {
+  border-color: var(--fs-accent) !important;
+  background: rgba(255, 255, 255, 1) !important;
+  box-shadow:
+    0 0 0 6px var(--fs-accent-subtle),
+    0 12px 40px -12px rgba(26, 36, 32, 0.5);
+  transform: scale(1.02);
+}
+
+.fs-target .fs-dropzone-circle {
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fs-target::before,
   .fs-target::after {
     animation: none;
+  }
+  .fs-target.fs-target--drag-active .fs-dropzone-circle {
+    transform: none;
   }
 }
 
