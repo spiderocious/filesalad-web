@@ -49,7 +49,7 @@ export function ModeTabs<V extends string = string>({
     <div
       role="tablist"
       aria-label={ariaLabel ?? 'Mode'}
-      className="inline-flex items-center gap-1 rounded-full border border-[var(--fs-border)] bg-[var(--fs-surface)] p-1"
+      className="inline-flex items-center gap-1 rounded-full border border-[var(--fs-border)] bg-[var(--fs-surface)] p-1 z-50"
     >
       <Repeat each={[...options]}>
         {(option, index) => {
