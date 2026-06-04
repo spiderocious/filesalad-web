@@ -2,6 +2,7 @@ import { formatBytes, toast } from 'file-salad-ui-lib';
 import { Show } from 'meemaw';
 
 import { AlertCircle, Check, Copy, LinkIcon, Loader2 } from '@icons';
+import { useShareCodesEnabled } from '@shared/feature-flags/hooks/use-share-codes-enabled';
 
 import { useCopyHistoryUrl } from '../../../utils/use-copy-history-url.ts';
 import type { HistoryEntry } from '../../../types/history.ts';
@@ -28,6 +29,7 @@ function formatTime(iso: string): string {
 // is gone. The in-button confirmation is the primary feedback since the drawer
 // hides the toast.
 export function HistoryRow({ entry }: HistoryRowProps) {
+  const codesEnabled = useShareCodesEnabled();
   const { status, errorMessage, copy } = useCopyHistoryUrl();
   const meta = [formatBytes(entry.size), formatTime(entry.timestamp)].filter(Boolean).join(' · ');
 
@@ -83,9 +85,11 @@ export function HistoryRow({ entry }: HistoryRowProps) {
         </p>
       </Show>
 
-      <div className="mt-2">
-        <ShareButton uploadId={entry.id} />
-      </div>
+      <Show when={codesEnabled}>
+        <div className="mt-2">
+          <ShareButton uploadId={entry.id} />
+        </div>
+      </Show>
     </div>
   );
 }

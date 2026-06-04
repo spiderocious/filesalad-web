@@ -3,6 +3,7 @@ import { Show } from 'meemaw';
 
 import { LinkIcon } from '@icons';
 import { shareLink } from '@shared/config/env';
+import { useShareCodesEnabled } from '@shared/feature-flags/hooks/use-share-codes-enabled';
 
 import { useShareCode } from '../../../api/use-share-code.ts';
 
@@ -12,9 +13,13 @@ interface ShareButtonProps {
 
 // Mints a short share code for an upload and shows the friendly /s/CODE link
 // (re-redeemable for ~24h). Opt-in per-upload action — nothing is shared until
-// the user clicks. Used on the upload result + history rows.
+// the user clicks. Used on the upload result + history rows. Hidden entirely
+// when the share-codes feature flag is off.
 export function ShareButton({ uploadId }: ShareButtonProps) {
+  const enabled = useShareCodesEnabled();
   const share = useShareCode();
+
+  if (!enabled) return null;
 
   return (
     <Show

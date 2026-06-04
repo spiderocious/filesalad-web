@@ -11,4 +11,7 @@ export const EP = {
     CREATE: '/share',
     REDEEM: (code: string) => `/share/${code}`,
   },
+  // Feature flags — single endpoint the FE polls on expiry to learn which UI
+  // features are on. Public; safest-defaults of false when the call fails.
+  FEATURES: '/features',
 } as const;

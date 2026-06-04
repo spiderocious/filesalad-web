@@ -1,6 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+
+import { apiFlagSource } from '@shared/feature-flags/api-flag-source';
+import { FeatureFlagsProvider } from '@shared/feature-flags/feature-flags-provider';
 
 export function AppProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -11,9 +14,16 @@ export function AppProviders({ children }: { children: ReactNode }) {
         },
       }),
   );
+
+  // Constructed once per mount — swap apiFlagSource() for a different
+  // implementation (remote-config, etc.) without any consumer change.
+  const flagSource = useMemo(() => apiFlagSource(), []);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <FeatureFlagsProvider source={flagSource}>
+        <BrowserRouter>{children}</BrowserRouter>
+      </FeatureFlagsProvider>
     </QueryClientProvider>
   );
 }

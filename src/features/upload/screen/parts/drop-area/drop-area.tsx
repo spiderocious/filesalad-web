@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { AlertCircle, Loader2, Salad, UploadCloud } from '@icons';
+import { useShareCodesEnabled } from '@shared/feature-flags/hooks/use-share-codes-enabled';
 import { ModeTabs } from '@shared/ui/mode-tabs/mode-tabs.tsx';
 
 import { usePageDrop } from '../../../utils/use-page-drop.ts';
@@ -28,10 +29,15 @@ const MODE_OPTIONS = [
 // a share code). Tabs sit on top of the card; Upload is the default. The drop
 // target spans the whole page — drop anywhere outside the card too. Paste does
 // the same. Either action also flips back to the Upload tab so the user sees
-// the upload progress (instead of staring at the Code view).
+// the upload progress (instead of staring at the Code view). The Code tab
+// (and tabs strip) is hidden when the share-codes flag is off.
 export function DropArea() {
   const { code } = useParams<{ code?: string }>();
-  const [mode, setMode] = useState<Mode>(code ? 'code' : 'upload');
+  const codesEnabled = useShareCodesEnabled();
+  const [mode, setMode] = useState<Mode>(code && codesEnabled ? 'code' : 'upload');
+
+  // Force back to Upload if the flag flips off while the Code tab was open.
+  const effectiveMode: Mode = codesEnabled ? mode : 'upload';
 
   const { state, upload, reset } = useUploadController();
   const isUploading = state.status === 'uploading';
@@ -51,14 +57,16 @@ export function DropArea() {
 
   return (
     <div className="flex w-full max-w-md flex-col items-center gap-3">
-      <ModeTabs<Mode>
-        value={mode}
-        options={MODE_OPTIONS}
-        onChange={setMode}
-        aria-label="Upload or redeem a code"
-      />
+      <Show when={codesEnabled}>
+        <ModeTabs<Mode>
+          value={effectiveMode}
+          options={MODE_OPTIONS}
+          onChange={setMode}
+          aria-label="Upload or redeem a code"
+        />
+      </Show>
       <Show
-        when={mode === 'upload'}
+        when={effectiveMode === 'upload'}
         fallback={<CodeRedeemCard initialCode={code ?? ''} />}
       >
         <UploadCard
