@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { ROUTES } from '@shared/constants/routes';
+import { useDocumentMeta } from '@shared/seo/use-document-meta.ts';
 import { Logo } from '@shared/ui/logo/logo.tsx';
 
 interface SectionProps {
@@ -21,6 +22,13 @@ function Section({ title, children }: SectionProps) {
 // desktop app's settings. The whole point of FileSalad is "we don't keep your
 // stuff" — this page makes the specifics legible.
 export function PrivacyScreen() {
+  useDocumentMeta({
+    title: 'Privacy — FileSalad',
+    description:
+      'How FileSalad handles your files: short-lived links, files never held on our servers, local opt-in history, no tracking.',
+    path: '/privacy',
+    robots: 'index',
+  });
   return (
     <main className="mx-auto min-h-screen max-w-2xl bg-[var(--fs-bg)] px-6 py-12">
       <Link to={ROUTES.HOME} className="inline-block">
