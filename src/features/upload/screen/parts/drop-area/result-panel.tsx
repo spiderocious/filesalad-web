@@ -16,7 +16,7 @@ interface ResultPanelProps {
 // link with copy, plus an Open button (opens the URL in a new tab), and a reset.
 export function ResultPanel({ title, filename, url, resetLabel, onReset }: ResultPanelProps) {
   return (
-    <div className="w-full rounded-xl bg-white/95 p-4 shadow-lg">
+    <div className="w-full rounded-xl bg-white/95 p-4 shadow-lg z-50">
       <p className="mb-2 text-center text-sm font-medium text-[var(--fs-text)]">{title}</p>
       {filename ? (
         <p className="mb-2 truncate text-center text-xs text-[var(--fs-text-secondary)]">
