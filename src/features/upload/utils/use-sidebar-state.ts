@@ -1,6 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-import { useHistory } from '../providers/history-provider.tsx';
+import { useCallback, useRef, useState } from 'react';
 
 interface SidebarState {
   readonly isOpen: boolean;
@@ -15,16 +13,8 @@ interface SidebarState {
 // seed so an explicit user action (or a late-resolving read) can never clobber
 // the user's choice — checked synchronously, so there's no effect/click race.
 export function useSidebarState(): SidebarState {
-  const { entries, isLoaded } = useHistory();
   const [isOpen, setIsOpen] = useState(false);
   const settled = useRef(false);
-
-  useEffect(() => {
-    if (isLoaded && !settled.current) {
-      settled.current = true;
-      setIsOpen(entries.length > 0);
-    }
-  }, [isLoaded, entries.length]);
 
   const open = useCallback(() => {
     settled.current = true;

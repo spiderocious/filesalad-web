@@ -1,0 +1,8 @@
+# Allow all crawlers on the public surfaces. The /s/* share-code routes are
+# user-bearer URLs (anyone with the code can download), so they're disallowed
+# from indexing — we don't want random codes leaking into search results.
+User-agent: *
+Allow: /
+Disallow: /s/
+
+Sitemap: https://usefilesalad.xyz/sitemap.xml

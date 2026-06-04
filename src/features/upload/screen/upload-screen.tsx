@@ -1,8 +1,9 @@
 import { ToastHost } from 'file-salad-ui-lib';
 import { Show } from 'meemaw';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import { ROUTES } from '@shared/constants/routes';
+import { useDocumentMeta } from '@shared/seo/use-document-meta.ts';
 import { DrawerHost } from '@shared/ui/drawer/drawer-host.tsx';
 
 import { HistoryProvider } from '../providers/history-provider.tsx';
@@ -27,6 +28,25 @@ export function UploadScreen() {
 
 function UploadScreenContent() {
   const sidebar = useSidebarState();
+  const { code } = useParams<{ code?: string }>();
+  // Branch SEO on whether this mount is the homepage or a /s/:code deep link.
+  // Code routes are user-bearer URLs so we never want them in search indexes.
+  useDocumentMeta(
+    code
+      ? {
+          title: 'Redeem your file — FileSalad',
+          description: 'Enter your share code or follow the link to download.',
+          path: '/',
+          robots: 'noindex',
+        }
+      : {
+          title: 'FileSalad — Drop a file, get a public link',
+          description:
+            'Turn any file into a short, shareable link in two clicks. No signup, links expire automatically.',
+          path: '/',
+          robots: 'index',
+        },
+  );
 
   return (
     <div className="fs-backdrop flex h-screen flex-col overflow-hidden">
