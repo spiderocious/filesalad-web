@@ -10,7 +10,7 @@ const LOCAL_ENV = {
 } as const;
 
 const PROD_ENV = {
-  API_BASE_URL: 'https://file-salad-api-service-production.up.railway.app/',
+  API_BASE_URL: 'https://file-salad-api-service-production.up.railway.app',
   WEB_BASE_URL: 'https://usefilesalad.xyz',
 } as const;
 
