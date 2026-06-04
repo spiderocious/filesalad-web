@@ -51,5 +51,11 @@
     "typescript-eslint": "^8.25.0",
     "vite": "^6.0.0",
     "vitest": "^3.0.5"
+  },
+  "pnpm": {
+    "//": "pnpm 10+ blocks build scripts in git-hosted packages by default. file-salad-ui-lib is consumed via 'github:' and needs its 'prepare' step to build dist/ on install (the published tag intentionally doesn't ship dist/).",
+    "onlyBuiltDependencies": [
+      "file-salad-ui-lib"
+    ]
   }
 }

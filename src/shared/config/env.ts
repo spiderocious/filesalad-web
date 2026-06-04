@@ -4,14 +4,19 @@
 const DEFAULT_API_BASE_URL = 'http://localhost:8096';
 const DEFAULT_WEB_BASE_URL = 'http://localhost:5173';
 
-export const ENV = {
-  // The backend base URL. The API client appends `/api/v1`, so this is the bare
-  // origin.
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL,
-  // This web app's own origin — used to build shareable links (`/s/CODE`) and
-  // the privacy-policy URL.
-  WEB_BASE_URL: import.meta.env.VITE_WEB_BASE_URL ?? DEFAULT_WEB_BASE_URL,
+const LOCAL_ENV = {
+  API_BASE_URL: DEFAULT_API_BASE_URL,
+  WEB_BASE_URL: DEFAULT_WEB_BASE_URL,
 } as const;
+
+const PROD_ENV = {
+  API_BASE_URL: 'https://file-salad-api-service-production.up.railway.app/',
+  WEB_BASE_URL: 'https://usefilesalad.xyz',
+} as const;
+
+const IS_LOCAL = import.meta.env.MODE === 'development';
+
+export const ENV = IS_LOCAL ? LOCAL_ENV : PROD_ENV;
 
 // Shareable short link for a code, e.g. https://filesalad.app/s/K7M2QPF.
 export function shareLink(code: string): string {
