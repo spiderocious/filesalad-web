@@ -56,6 +56,8 @@ function UploadScreenContent() {
           <main className="flex flex-1 items-center justify-center px-6 pb-10">
             <DropArea />
           </main>
+          {/* Bottom history bar — mobile only (md:hidden); raises the drawer. */}
+          <MobileHistory />
           <footer className="px-6 pb-4 text-center">
             <Link
               to={ROUTES.PRIVACY}
@@ -73,9 +75,6 @@ function UploadScreenContent() {
           </div>
         </Show>
       </div>
-
-      {/* Bottom history bar — mobile only (md:hidden); raises the drawer. */}
-      <MobileHistory />
       <ToastHost position="bottom" />
     </div>
   );
