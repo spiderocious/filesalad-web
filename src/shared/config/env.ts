@@ -14,7 +14,7 @@ const PROD_ENV = {
   WEB_BASE_URL: 'https://usefilesalad.xyz',
 } as const;
 
-const IS_LOCAL = import.meta.env.MODE === 'development';
+const IS_LOCAL = false //import.meta.env.MODE === 'development';
 
 export const ENV = IS_LOCAL ? LOCAL_ENV : PROD_ENV;
 
