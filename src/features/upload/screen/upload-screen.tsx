@@ -61,7 +61,7 @@ function UploadScreenContent() {
           <footer className="px-6 pb-4 text-center">
             <Link
               to={ROUTES.PRIVACY}
-              className="text-xs font-medium text-white/80 hover:text-white hover:underline"
+              className="text-xs font-medium text-white/80 hover:text-white hover:underline hidden md:block"
             >
               Privacy
             </Link>

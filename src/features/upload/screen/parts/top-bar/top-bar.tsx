@@ -1,6 +1,8 @@
 import { PanelRightClose, PanelRightOpen } from '@icons';
 
 import { Logo } from '@shared/ui/logo/logo.tsx';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '@shared/constants/routes';
 
 interface TopBarProps {
   readonly isSidebarOpen: boolean;
@@ -25,6 +27,12 @@ export function TopBar({ isSidebarOpen, onToggleSidebar }: TopBarProps) {
         <ToggleIcon size={16} aria-hidden="true" />
         History
       </button>
+      <Link
+        to={ROUTES.PRIVACY}
+        className="text-xs font-medium text-white/80 hover:text-white hover:underline block md:hidden"
+      >
+        Privacy
+      </Link>
     </header>
   );
 }
